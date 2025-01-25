@@ -5,7 +5,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import status from "http-status";
 import ApiError from "../utils/ApiError.js";
 
-const ProductCollection = database.collection("products");
+export const ProductCollection = database.collection("products");
 
 const getAllProducts = asyncHandler(async (req, res) => {
   try {

@@ -6,7 +6,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import status from "http-status";
 import jwt from "jsonwebtoken";
 
-const UsersCollection = database.collection("users");
+export const UsersCollection = database.collection("users");
 
 const createUser = asyncHandler(async (req, res) => {
   const userInfo = req.body;

@@ -9,25 +9,22 @@ import jwt from "jsonwebtoken";
 const UsersCollection = database.collection("users");
 
 const createUser = asyncHandler(async (req, res) => {
+  const userInfo = req.body;
+
+  if (!(userInfo.email && userInfo.name)) {
+    throw new ApiError(status.NOT_FOUND, "User name and email are required!!");
+  }
+
+  const existedUser = await UsersCollection.findOne({
+    email: userInfo.email,
+  });
+
+  if (existedUser) {
+    throw new ApiError(status.CONFLICT, "User with email already exist!!");
+  }
+  userInfo.role = "user";
+
   try {
-    const userInfo = req.body;
-
-    if (!(userInfo.email && userInfo.name)) {
-      throw new ApiError(
-        status.NOT_FOUND,
-        "User name and email are required!!"
-      );
-    }
-
-    const existedUser = await UsersCollection.findOne({
-      email: userInfo.email,
-    });
-
-    if (existedUser) {
-      throw new ApiError(status.CONFLICT, "User with email already exist!!");
-    }
-    userInfo.role = "user";
-
     const result = await UsersCollection.insertOne(userInfo);
 
     const registeredUser = await UsersCollection.findOne({
@@ -66,5 +63,19 @@ const issueJwt = asyncHandler(async (req, res) => {
     .json(new ApiResponse(status.OK, { success: true }, "Success!!"));
 });
 
-const UserControllers = { createUser, issueJwt };
+const logoutUser = asyncHandler(async (req, res) => {
+  const user = req.body;
+
+  const loggedInUser = await UsersCollection.findOne({ email: user.email });
+  if (!loggedInUser) {
+    throw new ApiError(status.NOT_FOUND, "User not found!!");
+  }
+
+  return res
+    .status(status.OK)
+    .clearCookie("token", { ...cookieOptions, maxAge: 0 })
+    .json(new ApiResponse(status.OK, { success: true }, "Success"));
+});
+
+const UserControllers = { createUser, issueJwt, logoutUser };
 export default UserControllers;

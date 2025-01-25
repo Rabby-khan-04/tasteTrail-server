@@ -56,7 +56,13 @@ const issueJwt = asyncHandler(async (req, res) => {
     throw new ApiError(status.NOT_FOUND, "User not found!!");
   }
 
-  const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+  const userPayload = {
+    id: loggedInUser._id,
+    email: loggedInUser.email,
+    name: loggedInUser.name,
+  };
+
+  const token = jwt.sign(userPayload, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
   });
 
@@ -67,7 +73,7 @@ const issueJwt = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
-  const user = req.body;
+  const user = req.user;
 
   const loggedInUser = await UsersCollection.findOne({ email: user.email });
   if (!loggedInUser) {

@@ -75,5 +75,76 @@ const placeAnOrder = asyncHandler(async (req, res) => {
   }
 });
 
-const OrderControllers = { placeAnOrder };
+const getOrdersByUser = asyncHandler(async (req, res) => {
+  const { email } = req.query;
+  const user = req.user;
+
+  if (email !== user?.email) {
+    throw new ApiError(status.UNAUTHORIZED, "Unauthorized access!!");
+  }
+  const orderQuery = { userId: user.id };
+  const orders = await OrderCollection.aggregate([
+    {
+      $match: orderQuery,
+    },
+    {
+      $addFields: {
+        productId: { $toObjectId: "$productId" },
+        // userId: { $toObjectId: "$userId" },
+      },
+    },
+    {
+      $lookup: {
+        from: "products",
+        localField: "productId",
+        foreignField: "_id",
+        as: "product",
+      },
+    },
+    // {
+    //   $lookup: {
+    //     from: "users",
+    //     localField: "userId",
+    //     foreignField: "_id",
+    //     as: "orderBy",
+    //   },
+    // },
+    // {
+    //   $addFields: {
+    //     product: {
+    //       $first: "$product",
+    //     },
+    //     orderBy: {
+    //       $arrayElemAt: ["$orderBy", 0],
+    //     },
+    //   },
+    // },
+    {
+      $unwind: "$product",
+    },
+    // {
+    //   $unwind: "$orderBy",
+    // },
+    {
+      $project: {
+        _id: 1,
+        quantity: 1,
+        orderDate: 1,
+        "product.name": 1,
+        "product.image": 1,
+        "product.price": 1,
+        "product.addBy.name": 1,
+        "product.addBy.email": 1,
+      },
+    },
+  ]).toArray();
+
+  return res
+    .status(status.OK)
+    .json(new ApiResponse(status.OK, orders, "Orders fetched successfully!!"));
+});
+
+const getAllOrders = asyncHandler(async (req, res) => {});
+
+const OrderControllers = { placeAnOrder, getOrdersByUser, getAllOrders };
 export default OrderControllers;

@@ -8,4 +8,8 @@ router
   .route("/place-order")
   .post(UserMiddlewares.verifyJwt, OrderControllers.placeAnOrder);
 
+router
+  .route("/my-order")
+  .get(UserMiddlewares.verifyJwt, OrderControllers.getOrdersByUser);
+
 export default router;

@@ -12,7 +12,10 @@ const createUser = asyncHandler(async (req, res) => {
   const userInfo = req.body;
 
   if (!(userInfo.email && userInfo.name)) {
-    throw new ApiError(status.NOT_FOUND, "User name and email are required!!");
+    throw new ApiError(
+      status.BAD_REQUEST,
+      "User name and email are required!!"
+    );
   }
 
   const existedUser = await UsersCollection.findOne({

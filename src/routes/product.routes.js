@@ -4,8 +4,18 @@ import UserMiddlewares from "../middlewares/user.middlewares.js";
 
 const router = Router();
 
-router.route("/").get(ProductControllers.getallProduct);
+router.route("/").get(ProductControllers.getAllProducts);
 router.route("/product").get(ProductControllers.getSpecificProduct);
 router.route("/product/:id").get(ProductControllers.getSpecificProduct);
+router
+  .route("/products")
+  .get(UserMiddlewares.verifyJwt, ProductControllers.getProductByUser);
+router
+  .route("/product")
+  .post(UserMiddlewares.verifyJwt, ProductControllers.addAProduct);
+
+router
+  .route("/product/:id")
+  .patch(UserMiddlewares.verifyJwt, ProductControllers.updateAProduct);
 
 export default router;

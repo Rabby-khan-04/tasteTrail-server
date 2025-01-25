@@ -5,6 +5,7 @@ import UserMiddlewares from "../middlewares/user.middlewares.js";
 const router = Router();
 
 router.route("/products").get(ProductControllers.getAllProducts);
+router.route("/product-count").get(ProductControllers.getProductCount);
 router.route("/product").get(ProductControllers.getSpecificProduct);
 router.route("/product/:id").get(ProductControllers.getSpecificProduct);
 router

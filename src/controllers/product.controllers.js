@@ -12,10 +12,9 @@ const getAllProducts = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page);
   const skip = size * page;
 
-  console.log({ size, page, skip });
-
   try {
     const products = await ProductCollection.find({})
+      .project({ name: 1, image: 1, category: 1, price: 1, quantity: 1 })
       .skip(skip)
       .limit(size)
       .toArray();
@@ -29,6 +28,27 @@ const getAllProducts = asyncHandler(async (req, res) => {
     throw new ApiError(
       status.INTERNAL_SERVER_ERROR,
       "Something went wrong while fetching products!!"
+    );
+  }
+});
+
+const getProductCount = asyncHandler(async (req, res) => {
+  try {
+    const result = await ProductCollection.estimatedDocumentCount();
+
+    return res
+      .status(status.OK)
+      .json(
+        new ApiResponse(
+          status.OK,
+          result,
+          "Product count fetched successfully!!"
+        )
+      );
+  } catch (error) {
+    throw new ApiError(
+      status.INTERNAL_SERVER_ERROR,
+      error.message || "Failed to fetch product count!!"
     );
   }
 });
@@ -190,5 +210,6 @@ const ProductControllers = {
   getProductByUser,
   addAProduct,
   updateAProduct,
+  getProductCount,
 };
 export default ProductControllers;

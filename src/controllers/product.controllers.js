@@ -8,8 +8,17 @@ import ApiError from "../utils/ApiError.js";
 export const ProductCollection = database.collection("products");
 
 const getAllProducts = asyncHandler(async (req, res) => {
+  const size = parseInt(req.query.size);
+  const page = parseInt(req.query.page);
+  const skip = size * page;
+
+  console.log({ size, page, skip });
+
   try {
-    const products = await ProductCollection.find({}).toArray();
+    const products = await ProductCollection.find({})
+      .skip(skip)
+      .limit(size)
+      .toArray();
 
     return res
       .status(status.OK)

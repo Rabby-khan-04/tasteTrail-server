@@ -4,11 +4,11 @@ import UserMiddlewares from "../middlewares/user.middlewares.js";
 
 const router = Router();
 
-router.route("/").get(ProductControllers.getAllProducts);
+router.route("/products").get(ProductControllers.getAllProducts);
 router.route("/product").get(ProductControllers.getSpecificProduct);
 router.route("/product/:id").get(ProductControllers.getSpecificProduct);
 router
-  .route("/products")
+  .route("/my-products")
   .get(UserMiddlewares.verifyJwt, ProductControllers.getProductByUser);
 router
   .route("/product")

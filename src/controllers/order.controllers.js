@@ -154,59 +154,68 @@ const getOrdersByUser = asyncHandler(async (req, res) => {
 });
 
 const getAllOrders = asyncHandler(async (req, res) => {
-  const orders = await OrderCollection.aggregate([
-    {
-      $match: {},
-    },
-    {
-      $addFields: {
-        productId: { $toObjectId: "$productId" },
-        userId: { $toObjectId: "$userId" },
+  try {
+    const orders = await OrderCollection.aggregate([
+      {
+        $match: {},
       },
-    },
-    {
-      $lookup: {
-        from: "products",
-        localField: "productId",
-        foreignField: "_id",
-        as: "product",
+      {
+        $addFields: {
+          productId: { $toObjectId: "$productId" },
+          userId: { $toObjectId: "$userId" },
+        },
       },
-    },
-    {
-      $lookup: {
-        from: "users",
-        localField: "userId",
-        foreignField: "_id",
-        as: "orderBy",
+      {
+        $lookup: {
+          from: "products",
+          localField: "productId",
+          foreignField: "_id",
+          as: "product",
+        },
       },
-    },
-    {
-      $unwind: "$product",
-    },
-    {
-      $unwind: "$orderBy",
-    },
-    {
-      $project: {
-        _id: 1,
-        quantity: 1,
-        orderDate: 1,
-        "product.name": 1,
-        "product.image": 1,
-        "product.category": 1,
-        "product.price": 1,
-        "product.addBy.name": 1,
-        "product.addBy.email": 1,
-        "product.ordersCount": 1,
-        "orderBy.name": 1,
-        "orderBy.email": 1,
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "orderBy",
+        },
       },
-    },
-  ]).toArray();
+      {
+        $unwind: "$product",
+      },
+      {
+        $unwind: "$orderBy",
+      },
+      {
+        $project: {
+          _id: 1,
+          quantity: 1,
+          orderDate: 1,
+          "product.name": 1,
+          "product.image": 1,
+          "product.category": 1,
+          "product.price": 1,
+          "product.addBy.name": 1,
+          "product.addBy.email": 1,
+          "product.ordersCount": 1,
+          "orderBy.name": 1,
+          "orderBy.email": 1,
+        },
+      },
+    ]).toArray();
 
-  return res
-    .status(status.OK)
-    .json(new ApiResponse(status.OK, orders, "Orders fetched successfully!!"));
+    return res
+      .status(status.OK)
+      .json(
+        new ApiResponse(status.OK, orders, "Orders fetched successfully!!")
+      );
+  } catch (error) {
+    throw new ApiError(
+      status.INTERNAL_SERVER_ERROR,
+      error.message || "Failed to fetch orders!!"
+    );
+  }
 });
 
 const OrderControllers = { placeAnOrder, getOrdersByUser, getAllOrders };

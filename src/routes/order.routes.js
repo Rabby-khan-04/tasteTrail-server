@@ -12,4 +12,12 @@ router
   .route("/my-order")
   .get(UserMiddlewares.verifyJwt, OrderControllers.getOrdersByUser);
 
+router
+  .route("/")
+  .get(
+    UserMiddlewares.verifyJwt,
+    UserMiddlewares.verifyAdmin,
+    OrderControllers.getAllOrders
+  );
+
 export default router;

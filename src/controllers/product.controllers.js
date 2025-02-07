@@ -8,13 +8,31 @@ import ApiError from "../utils/ApiError.js";
 export const ProductCollection = database.collection("products");
 
 const getAllProducts = asyncHandler(async (req, res) => {
-  const size = parseInt(req.query.size);
+  const size = parseInt(req.query.size) || 0;
   const page = parseInt(req.query.page);
+  const category = req.query.category;
+  const origin = req.query.origin;
   const skip = size * page;
 
+  let query = {};
+
+  if (category && category.length > 0) {
+    query.category = { $in: category };
+  }
+  if (origin && origin.length > 0) {
+    query.origin = { $in: origin };
+  }
+
   try {
-    const products = await ProductCollection.find({})
-      .project({ name: 1, image: 1, category: 1, price: 1, quantity: 1 })
+    const products = await ProductCollection.find(query)
+      .project({
+        name: 1,
+        image: 1,
+        category: 1,
+        price: 1,
+        quantity: 1,
+        description: 1,
+      })
       .skip(skip)
       .limit(size)
       .toArray();
@@ -32,19 +50,36 @@ const getAllProducts = asyncHandler(async (req, res) => {
   }
 });
 
-const getProductCount = asyncHandler(async (req, res) => {
+const getAllProductInfo = asyncHandler(async (req, res) => {
   try {
     const result = await ProductCollection.estimatedDocumentCount();
+    // const productCategory = await ProductCollection.find({})
+    //   .project({ category: 1 })
+    //   .toArray();
 
-    return res
-      .status(status.OK)
-      .json(
-        new ApiResponse(
-          status.OK,
-          result,
-          "Product count fetched successfully!!"
-        )
-      );
+    const productCategories = await ProductCollection.aggregate([
+      { $group: { _id: "$category", count: { $sum: 1 } } },
+      { $project: { _id: 0, category: "$_id", count: 1 } },
+    ]).toArray();
+
+    const productOrigins = await ProductCollection.aggregate([
+      { $group: { _id: "$origin", count: { $sum: 1 } } },
+      {
+        $project: { _id: 0, origin: "$_id", count: 1 },
+      },
+    ]).toArray();
+
+    return res.status(status.OK).json(
+      new ApiResponse(
+        status.OK,
+        {
+          count: result,
+          categories: productCategories,
+          origins: productOrigins,
+        },
+        "Product count fetched successfully!!"
+      )
+    );
   } catch (error) {
     throw new ApiError(
       status.INTERNAL_SERVER_ERROR,
@@ -210,6 +245,6 @@ const ProductControllers = {
   getProductByUser,
   addAProduct,
   updateAProduct,
-  getProductCount,
+  getAllProductInfo,
 };
 export default ProductControllers;

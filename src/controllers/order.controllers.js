@@ -9,8 +9,9 @@ import ApiResponse from "../utils/ApiResponse.js";
 const OrderCollection = database.collection("orders");
 
 const placeAnOrder = asyncHandler(async (req, res) => {
-  const { productId, userId, quantity } = req.body;
-  if (!productId || !userId || !quantity || quantity <= 0) {
+  const { productId, quantity } = req.body;
+  const { userId } = req.user;
+  if (!productId || !quantity || quantity <= 0) {
     throw new ApiError(status.BAD_REQUEST, "All field are required");
   }
   const productQuery = { _id: new ObjectId(productId) };

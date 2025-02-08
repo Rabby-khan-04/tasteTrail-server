@@ -22,7 +22,11 @@ const getAllProducts = asyncHandler(async (req, res) => {
   if (origin && origin.length > 0) {
     query.origin = { $in: origin };
   }
-
+  if (origin && origin.length > 0 && category && category.length > 0) {
+    query = {
+      $or: [{ category: { $in: category } }, { origin: { $in: origin } }],
+    };
+  }
   try {
     const products = await ProductCollection.find(query)
       .project({
@@ -33,6 +37,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
         quantity: 1,
         description: 1,
       })
+      .sort({ ordersCount: -1 })
       .skip(skip)
       .limit(size)
       .toArray();

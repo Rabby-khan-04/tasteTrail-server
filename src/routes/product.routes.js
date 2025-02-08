@@ -6,7 +6,6 @@ const router = Router();
 
 router.route("/products").get(ProductControllers.getAllProducts);
 router.route("/product-info").get(ProductControllers.getAllProductInfo);
-router.route("/product").get(ProductControllers.getSpecificProduct);
 router.route("/product/:id").get(ProductControllers.getSpecificProduct);
 router
   .route("/my-products")

@@ -73,13 +73,6 @@ const issueJwt = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
-  const user = req.user;
-
-  const loggedInUser = await UsersCollection.findOne({ email: user.email });
-  if (!loggedInUser) {
-    throw new ApiError(status.NOT_FOUND, "User not found!!");
-  }
-
   return res
     .status(status.OK)
     .clearCookie("token", { ...cookieOptions, maxAge: 0 })

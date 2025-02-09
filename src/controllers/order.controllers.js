@@ -10,7 +10,7 @@ const OrderCollection = database.collection("orders");
 
 const placeAnOrder = asyncHandler(async (req, res) => {
   const { productId, quantity } = req.body;
-  const { userId } = req.user;
+  const { id } = req.user;
   if (!productId || !quantity || quantity <= 0) {
     throw new ApiError(status.BAD_REQUEST, "All field are required");
   }
@@ -32,7 +32,7 @@ const placeAnOrder = asyncHandler(async (req, res) => {
     throw new ApiError(status.BAD_REQUEST, "Insufficient stock available!!");
   }
 
-  const orderInfo = { productId, userId, quantity, orderDate: new Date() };
+  const orderInfo = { productId, userId: id, quantity, orderDate: new Date() };
 
   try {
     const orderResult = await OrderCollection.insertOne(orderInfo);

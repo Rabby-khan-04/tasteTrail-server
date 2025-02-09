@@ -6,8 +6,6 @@ const router = Router();
 
 router.route("/user").post(UserControllers.createUser);
 router.route("/jwt").post(UserControllers.issueJwt);
-router
-  .route("/logout")
-  .post(UserMiddlewares.verifyJwt, UserControllers.logoutUser);
+router.route("/logout").post(UserControllers.logoutUser);
 
 export default router;

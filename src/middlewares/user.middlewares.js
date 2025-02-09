@@ -13,7 +13,7 @@ const verifyJwt = asyncHandler(async (req, _, next) => {
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
       throw new ApiError(
-        status.INTERNAL_SERVER_ERROR,
+        status.FORBIDDEN,
         err.message || "Something went wrong while verifing jwt"
       );
     }

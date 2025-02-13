@@ -217,8 +217,8 @@ const updateAProduct = asyncHandler(async (req, res) => {
       name,
       image,
       category,
-      quantity,
-      price,
+      quantity: parseInt(quantity),
+      price: parseFloat(price),
       "addBy.name": addBy.name,
       "addBy.email": addBy.email,
       origin,
@@ -244,6 +244,32 @@ const updateAProduct = asyncHandler(async (req, res) => {
   }
 });
 
+const deleteAProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const query = { _id: new ObjectId(id) };
+
+  const product = await ProductCollection.findOne(query);
+
+  if (req.user?.email !== product.addBy.email) {
+    throw new ApiError(status.FORBIDDEN, "Unauthorized access!!");
+  }
+
+  try {
+    const result = await ProductCollection.deleteOne(query);
+
+    return res
+      .status(status.OK)
+      .json(
+        new ApiResponse(status.OK, result, "Product deleted successfully!!!")
+      );
+  } catch (error) {
+    throw new ApiError(
+      status.INTERNAL_SERVER_ERROR,
+      error.message || "Something went wrong while adding product!!"
+    );
+  }
+});
+
 const ProductControllers = {
   getAllProducts,
   getSpecificProduct,
@@ -251,5 +277,6 @@ const ProductControllers = {
   addAProduct,
   updateAProduct,
   getAllProductInfo,
+  deleteAProduct,
 };
 export default ProductControllers;

@@ -18,4 +18,8 @@ router
   .route("/product/:id")
   .patch(UserMiddlewares.verifyJwt, ProductControllers.updateAProduct);
 
+router
+  .route("/product/:id")
+  .delete(UserMiddlewares.verifyJwt, ProductControllers.deleteAProduct);
+
 export default router;

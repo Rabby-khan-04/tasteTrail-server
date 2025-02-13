@@ -72,6 +72,17 @@ const issueJwt = asyncHandler(async (req, res) => {
     .json(new ApiResponse(status.OK, { success: true }, "Success!!"));
 });
 
+const getAUser = asyncHandler(async (req, res) => {
+  const { email } = req.params;
+  const query = { email };
+
+  const user = await UsersCollection.findOne(query);
+
+  return res
+    .status(status.OK)
+    .json(new ApiResponse(status.OK, user, "User fetch successfully!!"));
+});
+
 const logoutUser = asyncHandler(async (req, res) => {
   return res
     .status(status.OK)
@@ -79,5 +90,5 @@ const logoutUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(status.OK, { success: true }, "Success"));
 });
 
-const UserControllers = { createUser, issueJwt, logoutUser };
+const UserControllers = { createUser, issueJwt, getAUser, logoutUser };
 export default UserControllers;
